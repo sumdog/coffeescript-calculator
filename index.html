@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>CoffeeScript Calculator</title>
+  <style>
+    .calc-button {
+      width: 40px;
+      margin-left: 10px;
+      margin-bottom: 10px;
+    }
+
+    #calcIO {
+      margin-left: 10px;
+      margin-bottom: 10px;
+      width: 190px;
+    }
+
+    #eq, #clear, #clear-all {
+      margin-top: 0px;
+      margin-left: 10px;
+      width: 52px;
+    }
+
+  </style>
+
+  <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.4/jquery.min.js"> </script>
+  <script type="text/coffeescript">
+
+    cregister = 0.0
+    pre_op = ''
+    clrnext = false
+
+    op = (op, io) ->
+      curval = parseFloat(io.val())
+      fcregister = parseFloat(cregister)
+      switch pre_op 
+        when '+' 
+          cregister = fcregister + curval
+        when '-'
+          cregister = fcregister - curval
+        when '*'
+          cregister = fcregister * curval
+        when '/'
+          cregister = fcregister / curval
+        when '^'
+          cregister = Math.pow(fcregister, curval)
+        when ''
+          cregister = curval
+
+      if op == '='
+        pre_op = ''
+      else
+        pre_op = op
+
+      io.val(cregister)    
+      clrnext = true
+
+    b_click = ->
+      console.log($(this).val())
+      io = $('#calcIO')
+      switch $(this).val()
+        when '+' then op('+', io)
+        when '-' then op('-', io)
+        when '*' then op('*', io)
+        when '/' then op('/', io)
+        when 'x^y' then op('^', io)
+        when '=' then op('=', io)
+        when '.' then io.val("#{io.val()}.") unless '.' in io.val()
+        else
+          if clrnext
+            io.val($(this).val())
+            clrnext = false
+          else 
+            a = $(this).val()
+            b = io.val()
+            b = '' if b == '0'
+            io.val("#{b}#{a}")
+
+    b_id = (button) ->
+      switch button
+        when '+' then 'plus'
+        when '-' then 'minus'
+        when '*' then 'mul'
+        when '/' then 'div'
+        when '^' then 'pow'
+        else button
+
+    $ -> (
+      num_buttons = ['1', '2', '3', '+', '4', '5', '6', '-', '7', '8', '9', '*', '0', '.', 'x^y' , '/']
+      row = $('<div class="row"></div>')
+      for bi in [0..16]
+        if bi % 4 == 0
+          $('#buttons').append row
+          row = $('<div class="row"></div>')
+        button = num_buttons[bi]
+
+        b_ele = $("<button class=\"calc-button\" value=\"#{button}\" id=\"#{b_id(button)}\" >#{button}</button>")
+        b_ele.click b_click
+        row.append $(b_ele)
+      
+      $(window).keypress (e) ->
+        switch e.which
+          when 13 then $('#eq').click()
+          when 42 then $("\##{b_id('*')}").click()
+          when 43 then $("\##{b_id('+')}").click()
+          when 45 then $("\##{b_id('-')}").click()
+          when 46 then $('#.').click()
+          when 47 then $("\##{b_id('/')}").click()
+          when 48 then $('#0').click()
+          when 49 then $('#1').click()
+          when 50 then $('#2').click()
+          when 51 then $('#3').click()
+          when 52 then $('#4').click()
+          when 53 then $('#5').click()
+          when 54 then $('#6').click()
+          when 55 then $('#7').click()
+          when 56 then $('#8').click()
+          when 57 then $('#9').click()
+          when 94 then $("\##{b_id('^')}").click()
+          when 99 then $('#clear').click()
+          else
+            console.log(e.which)
+
+      $('#clear').click ->
+        $('#calcIO').val('0')
+      
+      $('#eq').click b_click
+
+      $('#clearall').click ->
+        cregister = 0.0
+        pre_op = ''
+        clrnext = false
+        $('#calcIO').val('0')  
+
+    )
+  </script>
+  <script type="text/javascript" src="http://github.com/jashkenas/coffee-script/raw/master/extras/coffee-script.js"> </script>
+</head>
+
+<body>
+
+  <header>
+    <h1>Calculator Demo in Coffeescript</h1>
+    <p>It's pretty basic. I designed this for a job interview question. <a href="#insertlinkhere">Source code on Github</a></p>
+  </header>
+
+  <main>
+
+      <input type="text" id="calcIO" value="0" />
+      <section id="buttons">
+
+      </section>
+      <button id="clear">clear</button>
+      <button id="clearall">clear all</button>
+      <button id="eq" value="=">=</button>
+
+  </main>
+
+  <aside>
+   <h2>Notes</h2>
+   <ul>
+     <li>No order of operation.</li>
+     <li>License is GNU GPLv3</li>
+     <li>Don't actualy compile Coffeescript inline the way I have. It's dumb. I did it so this could be a one page demo</li>
+     <li>Keyboard input works (1 through 10, +-*/, C for clear, enter for equals)</li>
+     <li>Created by <a href="http://penguindreams.org">Sumit Khanna</a></li>
+   </ul>
+  </aside>
+
+</body>
+
+</html>
